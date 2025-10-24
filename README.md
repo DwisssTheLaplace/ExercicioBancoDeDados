@@ -147,5 +147,5 @@ Ao executar o último comando, o terminal irá fazer as perguntas. Após respond
 Quando acessar o banco de dados, será possível validar se houve a escrita ou não, atualizando a lista ou o banco de dados.
 
 <img width="947" height="509" alt="Image" src="https://github.com/user-attachments/assets/b9462875-6fdd-4d01-8d34-7da9d5a7a5b8" />
-
+<br>
 Obrigado pela atenção!
