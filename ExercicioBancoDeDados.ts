@@ -1,3 +1,10 @@
+/*
+ Desenvolvido pelos alunos:
+  Turma de CCO B - 2 semestre
+  - Eduardo Fernando De Almeida Loschi - (RA:2509964)
+  - João Quirino Ramos- (RA: 2526428)
+*/
+
 const { Pool } = require('pg');
 const readlineSync = require('readline-sync');
 
