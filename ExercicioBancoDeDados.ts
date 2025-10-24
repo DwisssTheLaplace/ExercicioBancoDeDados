@@ -1,57 +1,72 @@
-// Usando a sintaxe CommonJS 'require' que é 100% compatível
 const { Pool } = require('pg');
 const readlineSync = require('readline-sync');
 
-// Nunca use senha e usuario nos codgos - este é apenas um exemplo de aulas
-// No mundo real isso é uma baita vulnerabilidade
+/*
+CREATE TABLE public.aluno(
+	nome VARCHAR(100),
+	idade INTEGER,
+	serie CHAR(7),
+	notaMat INTEGER,
+	notaGeo INTEGER,
+	notaHist INTEGER
+)
+*/
 const dbConfig = {
-    user: 'aluno',
-    host: 'localhost',
-    database: 'db_profedu',
-    password: '102030',
-    port: 5432,
+  user: 'aluno',
+  host: 'localhost',
+  database: 'db_profedu',
+  password: '102030',
+  port: 5432,
 };
 
 const pool = new Pool(dbConfig);
 
-async function inserirDados() {
-    console.log("--- Cadastro de Novo Aluno ---");
+async function media(materia: any) {
+  console.log(`\nDigite suas 8 notas de ${materia}:`);
+  let soma = 0;
 
-    const nome = readlineSync.question('Digite o nome: ');
-    const idade = readlineSync.questionInt('Digite a idade: ');
-    const dataNasc = readlineSync.question('Digite a data de nascimento (formato AAAA-MM-DD): ');
+  for (let i = 1; i <= 8; i++) {
+    let notaTemp = readlineSync.questionFloat(`Nota da P${i}: `);
+    if (!notaTemp) notaTemp = 0;
+    soma += notaTemp;
+  }
 
-    if (!nome || !idade || !dataNasc) {
-        console.error("Erro: Todos os campos são obrigatórios! Operação cancelada.");
-        await pool.end();
-        return;
-    }
-
-    try {
-        console.log("\nConectando ao banco de dados...");
-        const client = await pool.connect();
-        console.log("Conexão bem-sucedida! Inserindo dados...");
-
-        const insertQuery = `
-            INSERT INTO public.pessoas (nome, idade, data_nasc)
-            VALUES ($1, $2, $3)
-        `;
-        const values = [nome, idade, dataNasc];
-
-        await client.query(insertQuery, values);
-        client.release();
-
-        console.log("-----------------------------------------");
-        console.log(`Dados inseridos com sucesso!`);
-        console.log(`Nome: ${nome}, Idade: ${idade}, Nascimento: ${dataNasc}`);
-        console.log("-----------------------------------------");
-
-    } catch (error) {
-        console.error("Ocorreu um erro ao interagir com o banco de dados:", error);
-    } finally {
-        await pool.end();
-        console.log("Conexão com o banco de dados encerrada.");
-    }
+  const mediaFinal = soma / 8;
+  console.log(`Media de ${materia}: ${mediaFinal.toFixed(2)}\n`);
+  return mediaFinal;
 }
 
-inserirDados();
+async function registro() {
+  console.log("--------- Cadastro de Aluno ----------");
+  const nome = readlineSync.question('Nome: ');
+  const idade = readlineSync.questionInt('Idade: ');
+  const serie = readlineSync.question('Serie (ex: 1A - EM): ');
+
+  const notaMat = await media("Matematica");
+  const notaGeo = await media("Geografia");
+  const notaHist = await media("Historia");
+
+  if (!nome || !idade || !serie) {
+    console.error("Erro: Todos os campos sao obrigatorios!");
+    await pool.end();
+    return;
+  }
+
+  try {
+    const client = await pool.connect();
+    const insertQuery = `
+      INSERT INTO aluno (nome, idade, serie, notaMat, notaGeo, notaHist)
+      VALUES ($1, $2, $3, $4, $5, $6)
+    `;
+    await client.query(insertQuery, [nome, idade, serie, notaMat, notaGeo, notaHist]);
+    client.release();
+
+    console.log(` Aluno ${nome} cadastrado com sucesso!`);
+  } catch (error) {
+    console.error("Erro ao salvar no banco:", error);
+  } finally {
+    await pool.end();
+  }
+}
+
+registro();
