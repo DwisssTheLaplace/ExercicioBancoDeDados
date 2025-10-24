@@ -1,16 +1,7 @@
 const { Pool } = require('pg');
 const readlineSync = require('readline-sync');
 
-/*
-CREATE TABLE public.aluno(
-	nome VARCHAR(100),
-	idade INTEGER,
-	serie CHAR(7),
-	notaMat INTEGER,
-	notaGeo INTEGER,
-	notaHist INTEGER
-)
-*/
+// configuração para entrar no banco de dados
 const dbConfig = {
   user: 'aluno',
   host: 'localhost',
@@ -21,6 +12,7 @@ const dbConfig = {
 
 const pool = new Pool(dbConfig);
 
+// Função para requisitar as 8 notas de uma materia
 async function media(materia: any) {
   console.log(`\nDigite suas 8 notas de ${materia}:`);
   let soma = 0;
@@ -31,16 +23,17 @@ async function media(materia: any) {
     soma += notaTemp;
   }
 
-  const mediaFinal = soma / 8;
+  const mediaFinal: number = parseFloat((soma / 8).toFixed(2));
   console.log(`Media de ${materia}: ${mediaFinal.toFixed(2)}\n`);
   return mediaFinal;
 }
 
+// Função para registrar um aluno
 async function registro() {
   console.log("--------- Cadastro de Aluno ----------");
   const nome = readlineSync.question('Nome: ');
   const idade = readlineSync.questionInt('Idade: ');
-  const serie = readlineSync.question('Serie (ex: 1A - EM): ');
+  const serie = readlineSync.question('Serie (ex de formato: 1A - EM): ');
 
   const notaMat = await media("Matematica");
   const notaGeo = await media("Geografia");
@@ -69,4 +62,5 @@ async function registro() {
   }
 }
 
+// Chama a função para inicio
 registro();
